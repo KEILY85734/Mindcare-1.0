@@ -1,16 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ejercicios - MindCare</title>
-  <link rel="stylesheet" href="diseño.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejercicios - Memorama por Niveles</title>
+  <link rel="stylesheet" href="diseño.css">
+  <style>
+    .win-message {
+      font-size: 2rem;
+      color: #4caf50;
+      margin-top: 20px;
+      display: none;
+      text-shadow: 2px 2px 5px #000;
+    }
+
+    select {
+      font-size: 1rem;
+      padding: 10px 15px;
+      margin: 20px auto;
+      background-color: #b60000;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff1a1a;
+      text-align: center;
+    }
+
+    select:focus {
+      outline: none;
+      background-color: #910606;
+    }
+
+    .game-board {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      background-color: #444;
+      color: white;
+      font-size: 2rem;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 10px;
+      user-select: none;
+      box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff1a1a;
+    }
+
+    .card.flipped {
+      background-color: #fff;
+      color: #000;
+      cursor: default;
+    }
+
+    .card.matched {
+      background-color: #4caf50;
+      color: white;
+      cursor: default;
+    }
+  </style>
 </head>
 <body class="fade-in">
 
   <header>
     <div class="logo-header">
-      <img src="logo.png" alt="Logo encabezado" class="logo"/>
+      <img src="logo.png" alt="Logo" class="logo"/>
     </div>
     <nav>
       <ul class="nav-links">
@@ -23,22 +83,108 @@
   </header>
 
   <main>
-    <h1>Ejercicios de Memoria con Audio</h1>
-    <p>Estos ejercicios ayudarán a estimular la mente de forma auditiva.</p>
+    <h1>Ejercicios de Memoria - Memorama</h1>
+    <label for="difficulty">Selecciona el nivel:</label>
+    <select id="difficulty">
+      <option value="8">Fácil (8 cartas)</option>
+      <option value="16">Medio (16 cartas)</option>
+      <option value="24" selected>Difícil (24 cartas)</option>
+    </select>
 
-    <div class="detalles">
-      <p><a href="https://www.youtube.com/watch?v=XGXwkEvmsjg" target="_blank">🎧 Memoria auditiva: Escucha y recuerda (Clase 32 – 2025)</a></p>
-      <p><a href="https://www.youtube.com/watch?v=9BNt2mE_DFs" target="_blank">🧠 Juego de memoria secuencial auditiva – Entrenamiento</a></p>
-      <p><a href="https://www.youtube.com/watch?v=f_PIULunIZI" target="_blank">🔊 Mejora tu memoria – Ejercicios para adultos mayores</a></p>
-      <p><a href="https://www.youtube.com/watch?v=aipayGEf5bQ" target="_blank">🔁 SESIÓN DE MEMORIA SECUENCIAL AUDITIVA</a></p>
-
-    </div>
-
-    <p>¡Muy pronto podrás disfrutar de ejercicios personalizados directamente aquí en MindCare!</p>
+    <div class="game-board" id="board"></div>
+    <div id="winMessage" class="win-message">&#x1F389; ¡Ganaste! &#x1F389;</div>
   </main>
 
   <footer>
     &copy; 2025 MindCare.com - Todos los derechos reservados
   </footer>
+
+  <script>
+    const allSymbols = [
+      "🍎", "🚗", "🐶", "🎵", "🌞", "🌈", "🦤", "🎲",
+      "🎁", "🧹", "🍕", "🚀", "🐱", "⚽", "📚", "🧸"
+    ];
+
+    const board = document.getElementById('board');
+    const difficultySelect = document.getElementById('difficulty');
+    const winMessage = document.getElementById('winMessage');
+
+    let flippedCards = [];
+    let lockBoard = false;
+    let matchedCount = 0;
+    let totalPairs = 0;
+
+    function setupBoard(cardCount) {
+      board.innerHTML = '';
+      winMessage.style.display = 'none';
+      flippedCards = [];
+      lockBoard = false;
+      matchedCount = 0;
+      totalPairs = cardCount / 2;
+
+      const pairCount = cardCount / 2;
+      const symbols = allSymbols.slice(0, pairCount);
+      let cards = [...symbols, ...symbols];
+      cards.sort(() => Math.random() - 0.5);
+
+      if (cardCount === 8 || cardCount === 16) {
+        board.style.gridTemplateColumns = 'repeat(4, 90px)';
+      } else if (cardCount === 24) {
+        board.style.gridTemplateColumns = 'repeat(6, 90px)';
+      }
+
+      cards.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.symbol = symbol;
+        card.dataset.index = index;
+        card.textContent = "";
+        board.appendChild(card);
+      });
+    }
+
+    board.addEventListener('click', function(e) {
+      const card = e.target;
+      if (!card.classList.contains('card') || card.classList.contains('flipped') || lockBoard) return;
+
+      card.classList.add('flipped');
+      card.textContent = card.dataset.symbol;
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        lockBoard = true;
+        const [first, second] = flippedCards;
+
+        if (first.dataset.symbol === second.dataset.symbol) {
+          first.classList.add('matched');
+          second.classList.add('matched');
+          flippedCards = [];
+          matchedCount++;
+          lockBoard = false;
+
+          if (matchedCount === totalPairs) {
+            winMessage.style.display = 'block';
+          }
+        } else {
+          setTimeout(() => {
+            first.classList.remove('flipped');
+            second.classList.remove('flipped');
+            first.textContent = "";
+            second.textContent = "";
+            flippedCards = [];
+            lockBoard = false;
+          }, 1000);
+        }
+      }
+    });
+
+    difficultySelect.addEventListener('change', () => {
+      const value = parseInt(difficultySelect.value);
+      setupBoard(value);
+    });
+
+    setupBoard(parseInt(difficultySelect.value));
+  </script>
+
 </body>
 </html>
