@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ejercicios - Memorama por Niveles</title>
-  <link rel="stylesheet" href="diseño.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ejercicios - Juegos por Selección</title>
+  <link rel="stylesheet" href="diseño.css" />
   <style>
+    /* Estilos base que tenías */
     .win-message {
       font-size: 2rem;
       color: #4caf50;
@@ -13,7 +14,6 @@
       display: none;
       text-shadow: 2px 2px 5px #000;
     }
-
     select {
       font-size: 1rem;
       padding: 10px 15px;
@@ -24,20 +24,19 @@
       border-radius: 5px;
       box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff1a1a;
       text-align: center;
+      display: block;
+      max-width: 250px;
     }
-
     select:focus {
       outline: none;
       background-color: #910606;
     }
-
     .game-board {
       display: grid;
       gap: 10px;
       justify-content: center;
       margin-top: 20px;
     }
-
     .card {
       background-color: #444;
       color: white;
@@ -51,18 +50,50 @@
       border-radius: 10px;
       user-select: none;
       box-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff1a1a;
+      transition: background-color 0.3s, color 0.3s;
     }
-
     .card.flipped {
       background-color: #fff;
       color: #000;
       cursor: default;
     }
-
     .card.matched {
       background-color: #4caf50;
       color: white;
       cursor: default;
+    }
+
+    /* Contenedores juegos */
+    .game-container {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .game-container.active {
+      display: block;
+    }
+
+    /* Estilos juego Simon y colores simples */
+    .color-button {
+      width: 80px;
+      height: 80px;
+      margin: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 5px #000;
+      display: inline-block;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+    .color-button.active {
+      opacity: 1;
+      box-shadow: 0 0 20px #fff;
+    }
+
+    /* Para colores simples más grandes */
+    #colorMemoryButtons .color-button {
+      width: 120px;
+      height: 120px;
     }
   </style>
 </head>
@@ -70,7 +101,7 @@
 
   <header>
     <div class="logo-header">
-      <img src="logo.png" alt="Logo" class="logo"/>
+      <img src="logo.png" alt="Logo" class="logo" />
     </div>
     <nav>
       <ul class="nav-links">
@@ -83,16 +114,67 @@
   </header>
 
   <main>
-    <h1>Ejercicios de Memoria - Memorama</h1>
-    <label for="difficulty">Selecciona el nivel:</label>
-    <select id="difficulty">
-      <option value="8">Fácil (8 cartas)</option>
-      <option value="16">Medio (16 cartas)</option>
-      <option value="24" selected>Difícil (24 cartas)</option>
+    <h1>Ejercicios de Memoria y Juegos</h1>
+
+    <label for="gameSelect">Selecciona el juego:</label>
+    <select id="gameSelect">
+      <option value="memorama">Memorama Clásico</option>
+      <option value="simon">Simon Dice</option>
+      <option value="colorMemory">Memoria de Colores Simples</option>
+      <option value="imageMemory">Memoria de Imágenes Grandes</option>
     </select>
 
-    <div class="game-board" id="board"></div>
-    <div id="winMessage" class="win-message">&#x1F389; ¡Ganaste! &#x1F389;</div>
+    <!-- Memorama clásico -->
+    <div id="memorama" class="game-container">
+      <label for="difficulty">Selecciona el nivel:</label>
+      <select id="difficulty">
+        <option value="8">Fácil (8 cartas)</option>
+        <option value="16">Medio (16 cartas)</option>
+        <option value="24" selected>Difícil (24 cartas)</option>
+      </select>
+
+      <div class="game-board" id="board"></div>
+      <div id="winMessage" class="win-message">&#x1F389; ¡Ganaste! &#x1F389;</div>
+    </div>
+
+    <!-- Simon dice -->
+    <div id="simon" class="game-container">
+      <p>Repite la secuencia de colores en orden. Haz clic en el botón "Comenzar" para iniciar.</p>
+      <div id="simonButtons">
+        <div class="color-button" data-color="red" style="background-color: #e74c3c;"></div>
+        <div class="color-button" data-color="blue" style="background-color: #3498db;"></div>
+        <div class="color-button" data-color="green" style="background-color: #2ecc71;"></div>
+        <div class="color-button" data-color="yellow" style="background-color: #f1c40f;"></div>
+      </div>
+      <button id="startSimon" style="margin-top:20px; padding:10px 15px; background:#b60000; color:#fff; border:none; border-radius:5px; cursor:pointer;">Comenzar</button>
+      <div id="simonMessage" class="win-message" style="color:#b60000;"></div>
+    </div>
+
+    <!-- Memoria de colores simples -->
+    <div id="colorMemory" class="game-container">
+      <p>Repite la secuencia de colores simples en orden.</p>
+      <div id="colorMemoryButtons">
+        <div class="color-button" data-color="red" style="background-color: #e74c3c;"></div>
+        <div class="color-button" data-color="blue" style="background-color: #3498db;"></div>
+        <div class="color-button" data-color="green" style="background-color: #2ecc71;"></div>
+      </div>
+      <button id="startColorMemory" style="margin-top:20px; padding:10px 15px; background:#b60000; color:#fff; border:none; border-radius:5px; cursor:pointer;">Comenzar</button>
+      <div id="colorMemoryMessage" class="win-message" style="color:#b60000;"></div>
+    </div>
+
+    <!-- Memoria de imágenes grandes con dificultad -->
+    <div id="imageMemory" class="game-container" style="text-align:center;">
+      <label for="imageDifficulty">Selecciona el nivel:</label>
+      <select id="imageDifficulty">
+        <option value="6">Fácil (6 cartas)</option>
+        <option value="12" selected>Medio (12 cartas)</option>
+        <option value="18">Difícil (18 cartas)</option>
+      </select>
+
+      <p>Encuentra los pares de imágenes grandes.</p>
+      <div class="game-board" id="imageBoard" style="justify-content:center;"></div>
+      <div id="imageWinMessage" class="win-message">&#x1F389; ¡Ganaste! &#x1F389;</div>
+    </div>
   </main>
 
   <footer>
@@ -100,15 +182,19 @@
   </footer>
 
   <script>
+    // Función para pausar
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Memorama clásico
     const allSymbols = [
       "🍎", "🚗", "🐶", "🎵", "🌞", "🌈", "🦤", "🎲",
       "🎁", "🧹", "🍕", "🚀", "🐱", "⚽", "📚", "🧸"
     ];
-
     const board = document.getElementById('board');
     const difficultySelect = document.getElementById('difficulty');
     const winMessage = document.getElementById('winMessage');
-
     let flippedCards = [];
     let lockBoard = false;
     let matchedCount = 0;
@@ -179,12 +265,274 @@
     });
 
     difficultySelect.addEventListener('change', () => {
-      const value = parseInt(difficultySelect.value);
-      setupBoard(value);
+      setupBoard(parseInt(difficultySelect.value));
     });
 
-    setupBoard(parseInt(difficultySelect.value));
-  </script>
+    // Simon dice
+    const simonButtons = document.querySelectorAll('#simonButtons .color-button');
+    const startSimonBtn = document.getElementById('startSimon');
+    const simonMessage = document.getElementById('simonMessage');
 
+    let simonSequence = [];
+    let userSequence = [];
+    let simonTurn = true;
+    let simonPlaying = false;
+    const colors = ['red', 'blue', 'green', 'yellow'];
+
+    async function playSimonSequence() {
+      simonPlaying = true;
+      for (const color of simonSequence) {
+        const btn = document.querySelector(`#simonButtons .color-button[data-color="${color}"]`);
+        btn.classList.add('active');
+        await sleep(600);
+        btn.classList.remove('active');
+        await sleep(200);
+      }
+      simonPlaying = false;
+    }
+
+    function addColorToSimonSequence() {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      simonSequence.push(randomColor);
+    }
+
+    startSimonBtn.addEventListener('click', async () => {
+      simonSequence = [];
+      userSequence = [];
+      simonMessage.textContent = '';
+      addColorToSimonSequence();
+      await playSimonSequence();
+      simonTurn = false;
+    });
+
+    simonButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (simonTurn || simonPlaying) return;
+        const color = btn.dataset.color;
+        userSequence.push(color);
+
+        btn.classList.add('active');
+        setTimeout(() => btn.classList.remove('active'), 300);
+
+        for (let i = 0; i < userSequence.length; i++) {
+          if (userSequence[i] !== simonSequence[i]) {
+            simonMessage.textContent = '¡Inténtalo de nuevo!';
+            userSequence = [];
+            return;
+          }
+        }
+
+        if (userSequence.length === simonSequence.length) {
+          if (simonSequence.length === 10) {
+            simonMessage.textContent = '🎉 ¡Ganaste! 🎉';
+            return;
+          }
+          userSequence = [];
+          addColorToSimonSequence();
+          await sleep(500);
+          await playSimonSequence();
+        }
+      });
+    });
+
+    // Memoria de colores simples
+    const colorMemoryButtons = document.querySelectorAll('#colorMemoryButtons .color-button');
+    const startColorMemoryBtn = document.getElementById('startColorMemory');
+    const colorMemoryMessage = document.getElementById('colorMemoryMessage');
+
+    let colorMemorySequence = [];
+    let userColorMemorySequence = [];
+    let colorMemoryTurn = true;
+    let colorMemoryPlaying = false;
+    const simpleColors = ['red', 'blue', 'green'];
+
+    async function playColorMemorySequence() {
+      colorMemoryPlaying = true;
+      for (const color of colorMemorySequence) {
+        const btn = document.querySelector(`#colorMemoryButtons .color-button[data-color="${color}"]`);
+        btn.classList.add('active');
+        await sleep(600);
+        btn.classList.remove('active');
+        await sleep(200);
+      }
+      colorMemoryPlaying = false;
+    }
+
+    function addColorToColorMemorySequence() {
+      const randomColor = simpleColors[Math.floor(Math.random() * simpleColors.length)];
+      colorMemorySequence.push(randomColor);
+    }
+
+    startColorMemoryBtn.addEventListener('click', async () => {
+      colorMemorySequence = [];
+      userColorMemorySequence = [];
+      colorMemoryMessage.textContent = '';
+      addColorToColorMemorySequence();
+      await playColorMemorySequence();
+      colorMemoryTurn = false;
+    });
+
+    colorMemoryButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (colorMemoryTurn || colorMemoryPlaying) return;
+        const color = btn.dataset.color;
+        userColorMemorySequence.push(color);
+
+        btn.classList.add('active');
+        setTimeout(() => btn.classList.remove('active'), 300);
+
+        for (let i = 0; i < userColorMemorySequence.length; i++) {
+          if (userColorMemorySequence[i] !== colorMemorySequence[i]) {
+            colorMemoryMessage.textContent = '¡Inténtalo de nuevo!';
+            userColorMemorySequence = [];
+            return;
+          }
+        }
+
+        if (userColorMemorySequence.length === colorMemorySequence.length) {
+          if (colorMemorySequence.length === 10) {
+            colorMemoryMessage.textContent = '🎉 ¡Ganaste! 🎉';
+            return;
+          }
+          userColorMemorySequence = [];
+          addColorToColorMemorySequence();
+          await sleep(500);
+          await playColorMemorySequence();
+        }
+      });
+    });
+
+    // Memoria de imágenes grandes con dificultad
+    const imageBoard = document.getElementById('imageBoard');
+    const imageDifficultySelect = document.getElementById('imageDifficulty');
+    const imageWinMessage = document.getElementById('imageWinMessage');
+
+    let imageSymbolsBig = [
+      "🍎", "🐶", "🚗", "🎵", "🌞", "🌈", "🦤", "🎲", "🎁"
+    ]; // Hasta 9 pares (18 cartas)
+    let flippedImageCards = [];
+    let matchedImagePairs = 0;
+    let lockImageBoard = false;
+    let imageCards = [];
+
+    function setupImageMemory() {
+      imageBoard.innerHTML = '';
+      imageWinMessage.style.display = 'none';
+      flippedImageCards = [];
+      matchedImagePairs = 0;
+      lockImageBoard = false;
+
+      const pairsCount = parseInt(imageDifficultySelect.value) / 2;
+      const symbolsToUse = imageSymbolsBig.slice(0, pairsCount);
+      imageCards = [...symbolsToUse, ...symbolsToUse];
+      imageCards.sort(() => Math.random() - 0.5);
+
+      // Ajustar columnas (máximo 6)
+      let columns = pairsCount <= 3 ? pairsCount * 2 : 6;
+      imageBoard.style.gridTemplateColumns = `repeat(${columns}, 120px)`;
+
+      imageCards.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.style.width = '120px';
+        card.style.height = '120px';
+        card.style.fontSize = '4rem';
+        card.dataset.symbol = symbol;
+        card.dataset.index = index;
+        card.textContent = '';
+        imageBoard.appendChild(card);
+      });
+    }
+
+    imageBoard.addEventListener('click', (e) => {
+      const card = e.target;
+      if (!card.classList.contains('card') || card.classList.contains('flipped') || lockImageBoard) return;
+
+      card.classList.add('flipped');
+      card.textContent = card.dataset.symbol;
+      flippedImageCards.push(card);
+
+      if (flippedImageCards.length === 2) {
+        lockImageBoard = true;
+        const [first, second] = flippedImageCards;
+
+        if (first.dataset.symbol === second.dataset.symbol) {
+          first.classList.add('matched');
+          second.classList.add('matched');
+          flippedImageCards = [];
+          matchedImagePairs++;
+          lockImageBoard = false;
+
+          if (matchedImagePairs === imageCards.length / 2) {
+            imageWinMessage.style.display = 'block';
+          }
+        } else {
+          setTimeout(() => {
+            first.classList.remove('flipped');
+            second.classList.remove('flipped');
+            first.textContent = '';
+            second.textContent = '';
+            flippedImageCards = [];
+            lockImageBoard = false;
+          }, 1000);
+        }
+      }
+    });
+
+    imageDifficultySelect.addEventListener('change', () => {
+      setupImageMemory();
+    });
+
+    // Mostrar/ocultar juegos según selección
+    const gameSelect = document.getElementById('gameSelect');
+    const gameContainers = document.querySelectorAll('.game-container');
+
+    function showGame(id) {
+      gameContainers.forEach(c => {
+        if (c.id === id) c.classList.add('active');
+        else c.classList.remove('active');
+      });
+
+      // Mostrar/ocultar select dificultad solo para juegos que lo usan
+      if (id === 'memorama') {
+        difficultySelect.style.display = 'block';
+        setupBoard(parseInt(difficultySelect.value));
+      } else {
+        difficultySelect.style.display = 'none';
+      }
+
+      if (id === 'imageMemory') {
+        setupImageMemory();
+      } else {
+        imageWinMessage.style.display = 'none';
+      }
+
+      // Reset mensajes y estados de los otros juegos
+      if (id !== 'simon') {
+        simonMessage.textContent = '';
+        simonSequence = [];
+        userSequence = [];
+        simonTurn = true;
+        simonPlaying = false;
+      }
+      if (id !== 'colorMemory') {
+        colorMemoryMessage.textContent = '';
+        colorMemorySequence = [];
+        userColorMemorySequence = [];
+        colorMemoryTurn = true;
+        colorMemoryPlaying = false;
+      }
+      if (id !== 'memorama') {
+        winMessage.style.display = 'none';
+      }
+    }
+
+    gameSelect.addEventListener('change', e => {
+      showGame(e.target.value);
+    });
+
+    // Inicializar
+    showGame(gameSelect.value);
+  </script>
 </body>
 </html>
